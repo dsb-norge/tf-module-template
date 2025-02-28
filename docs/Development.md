@@ -18,30 +18,30 @@ Below you can find basic guidelines and rules that must be followed during modul
 
 ## Release and versioning
 
-This module uses [semantic versioning](https://semver.org).  
-Always use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in your pull-requests.  
-Module is using [release-please action](https://github.com/googleapis/release-please-action) and it create release PR based on commit message after PR is merged to main.  
+This module uses [semantic versioning](https://semver.org).
+Always use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) in your pull-requests.
+Module is using [release-please action](https://github.com/googleapis/release-please-action) and it create release PR based on commit message after PR is merged to main.
 Use [respective conventional commits](https://github.com/googleapis/release-please?tab=readme-ov-file#how-should-i-write-my-commits) to achieve correct [SemVer](https://semver.org) release version.
 
 Refer to [release-please documentation](https://github.com/googleapis/release-please) for better understanding and when additional questions occur.
 
-## Documentation  
+## Documentation
 
-Repo CI action has step to generate terraform documentation automatically using [terraform-docs action](https://github.com/terraform-docs/gh-actions) and configuration files in repo.   
-It is, however, possible to run ```terraform-docs``` locally to check documentation during development or when other need occur. 
+Repo CI action has step to generate terraform documentation automatically using [terraform-docs action](https://github.com/terraform-docs/gh-actions) and configuration files in repo.
+It is, however, possible to run ```terraform-docs``` locally to check documentation during development or when other need occur.
 
-#### Generate and inject terraform-docs in README.md
+### Generate and inject terraform-docs in README.md
 
 ```shell
 # go1.17+
-go install github.com/terraform-docs/terraform-docs@v0.18.0
+go install github.com/terraform-docs/terraform-docs@v0.19.0
 export PATH=$PATH:$(go env GOPATH)/bin
 
 # root
-terraform-docs markdown table --output-file README.md .
+terraform-docs .
 
 # docs for examples
 for ex_dir in $(find "./examples" -maxdepth 1 -mindepth 1 -type d | sort); do
-  terraform-docs markdown document "${ex_dir}" --config ./examples/.terraform-docs.yml
+  terraform-docs "${ex_dir}" --config ./examples/.terraform-docs.yml
 done
 ```
