@@ -7,7 +7,7 @@
 #    types: [opened, synchronize, reopened]
 #  workflow_dispatch: # allows manual build
 
-#env: 
+#env:
 #    ARM_TENANT_ID: ${{ secrets.REPO_AZURE_DSB_TENANT_ID }}
 #    ARM_SUBSCRIPTION_ID: ${{ secrets.REPO_AZURE_SUBSCRIPTION_ID }}
 #    ARM_CLIENT_ID: ${{ secrets.REPO_AZURE_TERRAFORM_USER_SERVICE_PRINCIPAL }}
@@ -20,9 +20,9 @@
 #    uses: dsb-norge/github-actions-terraform/.github/workflows/terraform-module-ci.yaml@v0
 #    secrets: inherit
 #    permissions:
-#        contents: write  # required for checkout action. 
-#        id-token: write # required for Azre passwodless login
+#        contents: write  # required for checkout action.
+#        id-token: write # required for Azure passwordless login
 #        pull-requests: write # required for commenting on PR
 #    with:
-#      terraform-version: "1.9.x"
-#      tflint-version: "v0.53.0"
+#      terraform-version: "1.10.x"
+#      tflint-version: "v0.55.0"
