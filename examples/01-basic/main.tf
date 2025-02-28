@@ -2,7 +2,6 @@ provider "azurerm" {
   features {}
 }
 
-
 module "basic_example" {
   source = "../../"
 
