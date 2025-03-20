@@ -7,12 +7,34 @@ Below you can find basic guidelines and rules that must be followed during modul
 ```shell
   # Init project, run fmt and validate
   terraform init -reconfigure
-  terraform fmt -check -recursive
+  terraform fmt -recursive
   terraform validate
 
   # Lint with TFLint, calling script from https://github.com/dsb-norge/terraform-tflint-wrappers
   alias lint='curl -s https://raw.githubusercontent.com/dsb-norge/terraform-tflint-wrappers/main/tflint_linux.sh | bash -s --'
   lint
+
+  # Validate all example directories
+  for example_dir in examples/*/; do
+    dir_name=${example_dir%*/}
+    if ! terraform -chdir=${dir_name} init; then echo "terraform init failed in ${dir_name}"; break; fi
+    if ! terraform -chdir=${dir_name} validate; then echo "terraform validate failed in ${dir_name}"; break; fi
+    if ! terraform -chdir=${dir_name} fmt -check; then echo "terraform fmt check failed in ${dir_name}"; break; fi
+    if ! .tflint/tflint -chdir=${dir_name} --config .tflint.hcl; then echo "tflint failed in ${dir_name}"; break; fi
+  done
+
+  # Manually test all examples
+  az account set --subscription 'GUID HERE'
+  for example_dir in examples/*/; do
+    dir_name=${example_dir%*/}
+    if ! terraform -chdir=${dir_name} init; then echo "terraform init failed in ${dir_name}"; break; fi
+    if ! ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv) terraform -chdir=${dir_name} apply; then echo "terraform apply failed in ${dir_name}"; break; fi
+    if ! ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv) terraform -chdir=${dir_name} destroy; then echo "terraform destroy failed in ${dir_name}"; break; fi
+  done
+
+  # Run tests using built-in terraform testing framework
+  az account set --subscription 'GUID HERE'
+  ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv) terraform test
 
 ```
 
