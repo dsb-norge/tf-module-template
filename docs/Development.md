@@ -32,11 +32,23 @@ Below you can find basic guidelines and rules that must be followed during modul
     if ! ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv) terraform -chdir=${dir_name} destroy; then echo "terraform destroy failed in ${dir_name}"; break; fi
   done
 
-  # Run tests using built-in terraform testing framework
+  # Run the unit tests, which need no credentials
+  terraform test -filter=tests/unit-tests.tftest.hcl
+
+  # Run every test using built-in terraform testing framework
   az account set --subscription 'GUID HERE'
   ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv) terraform test
 
 ```
+
+## Tests
+
+The module needs at least one test file: CI fails without one. `tests/unit-tests.tftest.hcl` is the
+unit suite; it plans the module without credentials, with its providers mocked (`mock_provider`)
+once the module requires any. CI runs every file named `unit-*.tftest.hcl` in the `unit` lane, which has none, and
+every other test file in the `integration` lane, whose credentials are the secrets of the GitHub
+Environment `tftest-integration` (see `.github/workflows/test.yaml`). Put test files in `tests/`, or
+beside the module's `.tf` files; a file anywhere else is listed as misplaced and does not run.
 
 ## Release and versioning
 
@@ -56,7 +68,7 @@ It is, however, possible to run ```terraform-docs``` locally to check documentat
 
 ```shell
 # go1.17+
-go install github.com/terraform-docs/terraform-docs@v0.19.0
+go install github.com/terraform-docs/terraform-docs@v0.20.0
 export PATH=$PATH:$(go env GOPATH)/bin
 
 # root
