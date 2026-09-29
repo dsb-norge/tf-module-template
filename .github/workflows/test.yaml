@@ -17,6 +17,8 @@ on:
 
 jobs:
   tf:
+    # the template is a silent repository: nothing runs in it, only in a repository created from it
+    if: github.repository != 'dsb-norge/tf-module-template'
     uses: dsb-norge/github-actions-terraform/.github/workflows/terraform-module-ci.yaml@v1
     secrets: inherit
     permissions:
