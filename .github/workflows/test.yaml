@@ -4,6 +4,7 @@ name: "Terraform module CI"
 #   for this workflow to work from a new repo in the organization the following must be done:
 #     - allow the repo access to the organization secret ORG_TF_CICD_APP_PRIVATE_KEY here: https://github.com/organizations/dsb-norge/settings/secrets/actions
 #     - allow the repo access to the organization variable ORG_TF_CICD_APP_ID here: https://github.com/organizations/dsb-norge/settings/variables/actions
+#     - allow the repo access to the organization Dependabot secret ORG_TF_CICD_APP_PRIVATE_KEY here: https://github.com/organizations/dsb-norge/settings/secrets/dependabot
 #     - allow the app 'dsb-norge-terraform-cicd-access' access to this repo by "configuring" the app from here: https://github.com/organizations/dsb-norge/settings/installations
 #   the app pushes the regenerated README.md to a pull request's branch. Workflow documentation:
 #   https://github.com/dsb-norge/github-actions-terraform/blob/main/docs/Workflow-terraform-module-ci.md
@@ -29,13 +30,21 @@ jobs:
     with:
       terraform-version: "1.16.x"
       tflint-version: "v0.64.0"
+      # A Dependabot pull request is judged before validation and the tests run it; an admitted one runs every
+      # lane and gets its regenerated README committed (github-actions-terraform docs/Dependabot-admission.md).
+      dependabot-admission-enabled: true
       # Test files named unit-*.tftest.hcl run without credentials and mock their providers.
       # Every other test file runs in the 'integration' lane, in the GitHub Environment
-      # 'tftest-integration': its first run creates the environment and prints the commands that
-      # set its ARM_TENANT_ID, ARM_SUBSCRIPTION_ID and ARM_CLIENT_ID secrets; the identity then
-      # trusts the subject repo:<owner>/<repo>:environment:tftest-integration.
+      # 'tftest-integration', as the module repositories' Azure principal terraform-sandbox-tf-module-cicd: it
+      # trusts the subject repo:<owner>/<repo>:environment:tftest-integration once azure-terraform-dsb-entra-id
+      # lists the repository. Its IDs are plain values, not secrets: a Dependabot run reads no environment
+      # secret, and the subject the principal trusts is what protects it.
       terraform-test-lanes-yml: |
         - name: unit
           match: ["**/unit-*.tftest.hcl"]
         - name: integration
           github-environment: auto
+          extra-envs-yml:
+            ARM_TENANT_ID: "93d155bd-6282-4a3c-8d5e-82ba9b074f99"
+            ARM_SUBSCRIPTION_ID: "8799ecd7-78bc-4835-bca1-22c7c68109d5" # ss13-ikt-iac-cicd
+            ARM_CLIENT_ID: "0c20334d-5253-48b3-8478-f4c501e49d6b" # terraform-sandbox-tf-module-cicd
