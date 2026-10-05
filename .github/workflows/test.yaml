@@ -37,6 +37,13 @@ jobs:
       # A Dependabot pull request is judged before validation and the tests run it; an admitted one runs every
       # lane and gets its regenerated README committed (github-actions-terraform docs/Dependabot-admission.md).
       dependabot-admission-enabled: true
+      # Dependabot's pull requests that keep every dependency within its major, and release-please's release
+      # pull requests, merge themselves once green (github-actions-terraform docs/Module-auto-merge.md); the CI
+      # App opens the release pull requests, so its bot account is listed
+      pr-auto-merge-enabled: true
+      pr-auto-merge-from-actors-yml: |
+        - dependabot[bot]
+        - dsb-norge-terraform-cicd-access[bot]
       # Test files named unit-*.tftest.hcl run without credentials and mock their providers.
       # Every other test file runs in the 'integration' lane, in the GitHub Environment
       # 'tftest-integration', as the module repositories' Azure principal terraform-sandbox-tf-module-cicd: it
